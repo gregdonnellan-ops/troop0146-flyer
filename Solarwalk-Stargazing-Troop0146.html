@@ -1,0 +1,409 @@
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>Solarwalk &amp; Stargazing — Troop 0146</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --gold:#FFD700;--gold2:#FFA500;
+  --blue-dark:#030a1a;--accent:#4fc3f7;--accent2:#7986cb;--white:#f0f4ff;
+  --card-bg:linear-gradient(135deg,rgba(17,34,68,.92),rgba(10,22,40,.97));
+  --card-border:rgba(79,195,247,.25);
+}
+html{scroll-behavior:smooth;}
+body{background:var(--blue-dark);color:var(--white);font-family:'Exo 2',sans-serif;overflow-x:hidden;-webkit-text-size-adjust:100%;}
+
+#stars-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+
+/* ── HERO ── */
+.hero{position:relative;z-index:1;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:48px 20px 72px;background:radial-gradient(ellipse at center top,rgba(16,40,90,0.9) 0%,transparent 70%);}
+.troop-badge{font-family:'Orbitron',sans-serif;font-size:clamp(.65rem,.9vw,.85rem);letter-spacing:.25em;color:var(--gold);border:1px solid var(--gold);padding:6px 18px;border-radius:40px;margin-bottom:28px;text-transform:uppercase;animation:fadeInDown 1s ease both;}
+.hero-title{font-family:'Orbitron',sans-serif;font-size:clamp(2.4rem,10vw,6rem);font-weight:900;line-height:1.05;animation:fadeInDown 1s .2s ease both;}
+.line1{color:var(--gold);text-shadow:0 0 40px rgba(255,215,0,.6),0 0 80px rgba(255,165,0,.3);}
+.amp{color:var(--accent);font-size:.6em;display:block;margin:4px 0;}
+.line2{color:var(--white);text-shadow:0 0 40px rgba(79,195,247,.5);}
+.hero-sub{font-size:clamp(.85rem,2.5vw,1.1rem);font-weight:300;letter-spacing:.12em;color:var(--accent);margin-top:20px;text-transform:uppercase;animation:fadeInUp 1s .5s ease both;}
+.hero-open{margin-top:12px;font-size:clamp(.85rem,2.2vw,1rem);color:rgba(240,244,255,.7);animation:fadeInUp 1s .7s ease both;}
+.sun-orbit{position:relative;width:180px;height:180px;margin:40px auto 0;animation:fadeIn 1.5s .8s ease both;}
+@media(min-width:480px){.sun-orbit{width:220px;height:220px;}}
+.sun{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:70px;height:70px;background:radial-gradient(circle,#fff7a0 0%,#FFD700 40%,#FF8C00 100%);border-radius:50%;box-shadow:0 0 40px 12px rgba(255,200,0,.5),0 0 80px 30px rgba(255,140,0,.25);animation:pulse 3s ease-in-out infinite;}
+@media(min-width:480px){.sun{width:80px;height:80px;}}
+.orbit-ring{position:absolute;top:50%;left:50%;border:1px dashed rgba(255,215,0,.3);border-radius:50%;transform:translate(-50%,-50%);}
+.ring1{width:110px;height:110px;animation:spin 8s linear infinite;}
+.ring2{width:170px;height:170px;animation:spin 14s linear infinite reverse;}
+@media(min-width:480px){.ring1{width:130px;height:130px;}.ring2{width:200px;height:200px;}}
+.planet{position:absolute;border-radius:50%;top:50%;left:50%;}
+.p1{width:12px;height:12px;background:#4fc3f7;box-shadow:0 0 8px #4fc3f7;margin-top:-55px;margin-left:-6px;animation:spin 8s linear infinite;transform-origin:6px 55px;}
+.p2{width:16px;height:16px;background:#ef5350;box-shadow:0 0 8px #ef5350;margin-top:-85px;margin-left:-8px;animation:spin 14s linear infinite reverse;transform-origin:8px 85px;}
+@media(min-width:480px){.p1{width:14px;height:14px;margin-top:-65px;margin-left:-7px;transform-origin:7px 65px;}.p2{width:18px;height:18px;margin-top:-100px;margin-left:-9px;transform-origin:9px 100px;}}
+.scroll-cue{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;opacity:.45;font-size:.72rem;letter-spacing:.2em;animation:bounce 2s ease-in-out infinite;}
+.scroll-cue svg{width:18px;height:18px;stroke:var(--accent);fill:none;}
+
+/* ── LAYOUT ── */
+.section{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:60px 16px;}
+@media(min-width:600px){.section{padding:80px 24px;}}
+.divider{position:relative;z-index:1;height:2px;max-width:700px;margin:0 auto;background:linear-gradient(90deg,transparent,var(--accent2),var(--gold),var(--accent2),transparent);opacity:.4;}
+.slabel{font-family:'Orbitron',sans-serif;font-size:.68rem;letter-spacing:.3em;color:var(--gold2);text-transform:uppercase;margin-bottom:10px;}
+.stitle{font-family:'Orbitron',sans-serif;font-size:clamp(1.4rem,5vw,2.6rem);font-weight:700;margin-bottom:24px;}
+.stitle span{color:var(--accent);}
+
+/* ── DATE GRID: 2 tiles (primary + time) ── */
+.date-grid-primary{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-bottom:14px;
+}
+
+.dc{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:22px 16px;text-align:center;transition:transform .3s,box-shadow .3s;-webkit-tap-highlight-color:transparent;}
+.dc:hover{transform:translateY(-4px);box-shadow:0 8px 28px rgba(79,195,247,.18);}
+.dc .ico{font-size:1.8rem;margin-bottom:8px;}
+.dc .lbl{font-size:.65rem;letter-spacing:.2em;color:var(--accent);text-transform:uppercase;margin-bottom:5px;}
+.dc .val{font-family:'Orbitron',sans-serif;font-size:clamp(.85rem,2.5vw,1rem);font-weight:700;line-height:1.4;}
+
+/* Primary date tile */
+.dc.primary-date{border-color:rgba(255,215,0,.5);background:linear-gradient(135deg,rgba(40,30,5,.95),rgba(20,15,0,.98));box-shadow:0 0 20px rgba(255,215,0,.12);}
+.dc.primary-date .lbl{color:var(--gold);}
+.dc.primary-date .val{font-size:clamp(1rem,3vw,1.25rem);color:var(--gold);}
+
+/* ── MAKEUP DATE TILE — full width, second row, more prominent ── */
+.makeup-tile{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  background:linear-gradient(135deg,rgba(30,20,60,.97),rgba(18,12,42,.99));
+  border:1.5px solid rgba(179,136,255,.55);
+  border-radius:14px;
+  padding:18px 24px;
+  margin-bottom:24px;
+  text-align:center;
+  box-shadow:0 0 24px rgba(150,100,255,.15), inset 0 1px 0 rgba(255,255,255,.06);
+  position:relative;
+  overflow:hidden;
+}
+.makeup-tile::before{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(150,100,255,.06) 0%,transparent 60%);
+  pointer-events:none;
+}
+.makeup-top{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;}
+.mu-label{
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(.68rem,2vw,.78rem);
+  letter-spacing:.25em;
+  color:#b39ddb;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.mu-sep{color:rgba(179,136,255,.35);font-size:1.1rem;}
+.mu-date{
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(1rem,3vw,1.2rem);
+  font-weight:700;
+  color:#e8d5ff;
+  letter-spacing:.04em;
+}
+.mu-note{
+  font-size:clamp(.72rem,2vw,.8rem);
+  color:rgba(220,200,255,.45);
+  font-style:italic;
+  margin-top:2px;
+}
+
+/* ── LOCATION ── */
+.loc-box{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:24px 20px;display:flex;gap:16px;align-items:flex-start;}
+@media(min-width:480px){.loc-box{padding:32px 28px;gap:24px;}}
+.loc-icon{font-size:2.4rem;flex-shrink:0;}
+@media(min-width:480px){.loc-icon{font-size:3rem;}}
+.loc-box h3{font-family:'Orbitron',sans-serif;font-size:clamp(.9rem,2.5vw,1.1rem);color:var(--accent);margin-bottom:6px;}
+.loc-box .address{font-size:clamp(.9rem,2vw,1rem);margin-bottom:12px;line-height:1.5;}
+.parking-box{background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.35);border-radius:10px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;}
+.parking-icon{font-size:1.3rem;flex-shrink:0;margin-top:1px;}
+.parking-text{font-size:clamp(.8rem,2vw,.9rem);line-height:1.5;}
+.parking-text strong{color:var(--gold2);display:block;font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;margin-bottom:3px;}
+
+/* ── TIMELINE ── */
+.timeline{position:relative;padding-left:28px;}
+@media(min-width:480px){.timeline{padding-left:32px;}}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--gold),var(--accent2),var(--accent));}
+.ti{position:relative;margin-bottom:32px;}
+.ti::before{content:'';position:absolute;left:-24px;top:5px;width:11px;height:11px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold);}
+@media(min-width:480px){.ti::before{left:-28px;width:12px;height:12px;}}
+.ti-time{font-family:'Orbitron',sans-serif;font-size:clamp(.75rem,2vw,.85rem);color:var(--gold);margin-bottom:4px;}
+.ti-ev{font-size:clamp(.95rem,2.5vw,1.1rem);font-weight:600;margin-bottom:4px;}
+.ti-desc{font-size:clamp(.82rem,2vw,.9rem);color:rgba(240,244,255,.65);line-height:1.6;}
+
+/* ── TWILIGHT GRID ── */
+.twi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:40px;}
+@media(min-width:500px){.twi-grid{grid-template-columns:repeat(4,1fr);gap:16px;}}
+.twi-item{background:rgba(10,22,40,.8);border:1px solid rgba(79,195,247,.15);border-radius:12px;padding:16px 12px;text-align:center;}
+.twi-item .ti-ico{font-size:1.4rem;margin-bottom:6px;}
+.twi-item .ti-lbl{font-size:.62rem;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;margin-bottom:4px;}
+.twi-item .ti-t{font-family:'Orbitron',sans-serif;font-size:clamp(.85rem,2vw,.95rem);font-weight:700;}
+
+/* ── ACTIVITY CARDS ── */
+.act-cards{display:grid;grid-template-columns:1fr;gap:20px;}
+@media(min-width:560px){.act-cards{grid-template-columns:repeat(2,1fr);gap:28px;}}
+.act-card{background:linear-gradient(135deg,rgba(17,34,68,.92),rgba(10,22,40,.97));border:1px solid rgba(121,134,203,.3);border-radius:20px;padding:28px 22px;transition:transform .3s;-webkit-tap-highlight-color:transparent;}
+.act-card:hover{transform:translateY(-5px);}
+.act-card .ci{font-size:2.4rem;margin-bottom:12px;}
+@media(min-width:480px){.act-card .ci{font-size:3rem;}}
+.act-card h3{font-family:'Orbitron',sans-serif;font-size:clamp(1rem,3vw,1.25rem);color:var(--gold);margin-bottom:12px;}
+.act-card p{font-size:clamp(.85rem,2vw,.95rem);color:rgba(240,244,255,.75);line-height:1.7;}
+
+/* ── SUPPLIES ── */
+.sup-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;}
+.chip{display:flex;align-items:center;gap:8px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.3);border-radius:40px;padding:10px 18px;font-size:clamp(.85rem,2vw,.95rem);color:var(--gold);transition:background .2s;-webkit-tap-highlight-color:transparent;min-height:44px;}
+.chip:hover{background:rgba(255,215,0,.15);}
+
+/* ── ADVANCEMENT ── */
+.adv-box{background:linear-gradient(135deg,rgba(30,50,20,.7),rgba(10,30,10,.9));border:1px solid rgba(100,200,80,.3);border-radius:16px;padding:28px 22px;position:relative;overflow:hidden;}
+@media(min-width:480px){.adv-box{padding:32px 28px;}}
+.adv-box::before{content:'⚜️';position:absolute;right:20px;top:16px;font-size:2.5rem;opacity:.12;}
+.adv-box p{font-size:clamp(.85rem,2vw,1rem);color:rgba(240,255,240,.85);line-height:1.7;}
+.bp-list{margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;}
+.bp{background:rgba(100,200,80,.15);border:1px solid rgba(100,200,80,.4);border-radius:30px;padding:8px 16px;font-size:clamp(.78rem,2vw,.85rem);color:#a5d6a7;font-weight:600;min-height:40px;display:flex;align-items:center;}
+
+/* ── RSVP ── */
+.rsvp-sec{position:relative;z-index:1;text-align:center;padding:80px 20px;background:radial-gradient(ellipse at center,rgba(16,40,90,.7) 0%,transparent 70%);}
+@media(min-width:480px){.rsvp-sec{padding:100px 24px;}}
+.rsvp-sec h2{font-family:'Orbitron',sans-serif;font-size:clamp(1.5rem,6vw,3.5rem);font-weight:900;margin-bottom:14px;}
+.rsvp-sec p{font-size:clamp(.9rem,2.5vw,1.05rem);color:rgba(240,244,255,.65);margin-bottom:36px;padding:0 8px;}
+.rsvp-btn{display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#0a0a0a;font-family:'Orbitron',sans-serif;font-size:clamp(.85rem,2.5vw,1rem);font-weight:700;letter-spacing:.1em;text-decoration:none;padding:18px 44px;border-radius:60px;box-shadow:0 0 30px rgba(255,165,0,.4);transition:transform .2s,box-shadow .2s;text-transform:uppercase;min-height:56px;-webkit-tap-highlight-color:transparent;}
+.rsvp-btn:hover{transform:scale(1.05);box-shadow:0 0 50px rgba(255,165,0,.6);}
+.rsvp-url{display:block;margin-top:18px;font-size:.72rem;color:rgba(240,244,255,.3);word-break:break-all;padding:0 12px;}
+
+footer{position:relative;z-index:1;text-align:center;padding:28px 20px;border-top:1px solid rgba(255,255,255,.05);font-size:.75rem;color:rgba(240,244,255,.3);letter-spacing:.08em;line-height:1.8;}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeInDown{from{opacity:0;transform:translateY(-30px)}to{opacity:1;transform:none}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 40px 12px rgba(255,200,0,.5),0 0 80px 30px rgba(255,140,0,.25)}50%{box-shadow:0 0 60px 22px rgba(255,220,0,.7),0 0 120px 55px rgba(255,160,0,.35)}}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
+.reveal{opacity:0;transform:translateY(36px);transition:opacity .7s,transform .7s;}
+.reveal.visible{opacity:1;transform:none;}
+</style>
+<style id="claude-agent-animation-styles">
+      @keyframes claude-pulse {
+        0%, 100% { opacity: 0.6; }
+        50% { opacity: 1; }
+      }
+      #claude-agent-glow-border-inner {
+        animation: claude-pulse 2s ease-in-out infinite;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #claude-agent-glow-border-inner {
+          animation: none;
+        }
+      }
+    </style></head>
+<body>
+<canvas id="stars-canvas"></canvas>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="troop-badge">Troop 0146 · Capitol Area Council BSA</div>
+  <h1 class="hero-title">
+    <span class="line1">Solarwalk</span>
+    <span class="amp">&amp;</span>
+    <span class="line2">Stargazing</span>
+  </h1>
+  <p class="hero-sub">Friday, June 19, 2026 &nbsp;·&nbsp; 6:00 PM – 11:00 PM</p>
+  <p class="hero-open">Open to Scouts · Siblings · Family Members</p>
+  <div class="sun-orbit">
+    <div class="orbit-ring ring1"></div>
+    <div class="orbit-ring ring2"></div>
+    <div class="sun"></div>
+    <div class="planet p1"></div>
+    <div class="planet p2"></div>
+  </div>
+  <div class="scroll-cue">
+    <span>Scroll to explore</span>
+    <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+  </div>
+</section>
+
+<!-- MISSION DETAILS -->
+<div class="divider"></div>
+<section class="section reveal visible">
+  <div class="slabel">When &amp; Where</div>
+  <h2 class="stitle">Mission <span>Details</span></h2>
+
+  <!-- Row 1: Primary Date + Time only -->
+  <div class="date-grid-primary">
+    <div class="dc primary-date">
+      <div class="ico">📅</div>
+      <div class="lbl">Primary Date</div>
+      <div class="val">Friday · June 19, 2026</div>
+    </div>
+    <div class="dc">
+      <div class="ico">🕕</div>
+      <div class="lbl">Time</div>
+      <div class="val">6:00 PM – 11:00 PM</div>
+    </div>
+  </div>
+
+  <!-- Row 2: Makeup date — full width, prominent -->
+  <div class="makeup-tile">
+    <div class="makeup-top">
+      <span class="mu-label">🌧️ Rain/Cloud Makeup Date</span>
+      <span class="mu-sep">|</span>
+      <span class="mu-date">Saturday, June 20, 2026</span>
+    </div>
+    <div class="mu-note">If the primary date is cancelled, the event will move to Saturday, June 20.</div>
+  </div>
+
+  <!-- Location -->
+  <div class="loc-box">
+    <div class="loc-icon">📍</div>
+    <div style="flex:1;">
+      <h3>Brushy Creek Lake Park</h3>
+      <p class="address">3300 Brushy Creek Rd · Cedar Park, TX 78613</p>
+      <div class="parking-box">
+        <span class="parking-icon">🅿️</span>
+        <div class="parking-text">
+          <strong>Parking Instructions</strong>
+          When you enter the park, <em>bear right</em> and pull into the <em>first parking area</em> on your right. Do not continue past it.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCHEDULE -->
+<div class="divider"></div>
+<section class="section reveal visible">
+  <div class="slabel">Evening Itinerary</div>
+  <h2 class="stitle">Tonight's <span>Schedule</span></h2>
+  <div class="timeline">
+    <div class="ti">
+      <div class="ti-time">6:00 PM – 7:30 PM</div>
+      <div class="ti-ev">☀️ Setup &amp; Solar Walk Experience</div>
+      <div class="ti-desc">Arrive, get set up, and journey through a scale model of our Solar System.</div>
+    </div>
+    <div class="ti">
+      <div class="ti-time">7:30 PM – 8:30 PM</div>
+      <div class="ti-ev">🔭 Telescope Setup</div>
+      <div class="ti-desc">Learn to configure traditional and smart telescopes as the sky begins to darken.</div>
+    </div>
+    <div class="ti">
+      <div class="ti-time">8:30 PM – 11:00 PM</div>
+      <div class="ti-ev">🌌 Stargazing</div>
+      <div class="ti-desc">Hands-on observation of the night sky — locate, observe, and explore celestial objects.</div>
+    </div>
+  </div>
+
+  <!-- Twilight grid — sunset still lives here -->
+  <div class="twi-grid">
+    <div class="twi-item"><div class="ti-ico">🌇</div><div class="ti-lbl">Sunset</div><div class="ti-t">8:35 PM</div></div>
+    <div class="twi-item"><div class="ti-ico">🌆</div><div class="ti-lbl">Civil Twilight</div><div class="ti-t">9:03 PM</div></div>
+    <div class="twi-item"><div class="ti-ico">🌃</div><div class="ti-lbl">Nautical Twilight</div><div class="ti-t">9:37 PM</div></div>
+    <div class="twi-item"><div class="ti-ico">🌌</div><div class="ti-lbl">Astronomical Twilight</div><div class="ti-t">10:13 PM</div></div>
+  </div>
+</section>
+
+<!-- ACTIVITIES -->
+<div class="divider"></div>
+<section class="section reveal visible">
+  <div class="slabel">What We'll Do</div>
+  <h2 class="stitle">The <span>Activities</span></h2>
+  <div class="act-cards">
+    <div class="act-card">
+      <div class="ci">☀️</div>
+      <h3>Solar Walk</h3>
+      <p>Journey through a scale model of the Solar System to explore the planets, learn about the vast distances of space, and discover our place in the universe. Scouts learn to set up and lead a Solar Walk — sharing this experience with younger Scouts, families, and the community as an act of service.</p>
+    </div>
+    <div class="act-card">
+      <div class="ci">🔭</div>
+      <h3>Stargazing</h3>
+      <p>The evening concludes with hands-on stargazing using both traditional and smart telescopes. Participants will learn to locate, observe, and explain celestial objects, and prepare to host future astronomy events for others.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SUPPLIES -->
+<div class="divider"></div>
+<section class="section reveal visible">
+  <div class="slabel">Be Prepared</div>
+  <h2 class="stitle">What to <span>Bring</span></h2>
+  <div class="sup-grid">
+    <div class="chip">🔦 Headlamp</div>
+    <div class="chip">🦟 Mosquito Repellent</div>
+    <div class="chip">👟 Closed-Toe Shoes</div>
+    <div class="chip">🪑 Camping Chair</div>
+    <div class="chip">🍿 Snacks</div>
+  </div>
+</section>
+
+<!-- ADVANCEMENT -->
+<div class="divider"></div>
+<section class="section reveal visible">
+  <div class="slabel">Advancement</div>
+  <h2 class="stitle">Counts Toward <span>Requirements</span></h2>
+  <div class="adv-box">
+    <p>This outdoor event <strong>counts toward required outdoor events for advancement</strong>. It qualifies toward First and Second Class sign-offs <strong>(Requirement 1a)</strong>, as well as selected requirements for the Astronomy Merit Badge.</p>
+    <div class="bp-list">
+      <span class="bp">⚜️ First Class – Req. 1a</span>
+      <span class="bp">⚜️ Second Class – Req. 1a</span>
+      <span class="bp">🌠 Astronomy Merit Badge</span>
+      <span class="bp">✅ Required Outdoor Event</span>
+    </div>
+  </div>
+</section>
+
+<!-- RSVP -->
+<div class="divider"></div>
+<section class="rsvp-sec reveal visible">
+  <h2>Ready to Join Us?</h2>
+  <p>Siblings must be supervised by a parent. All are welcome under the stars!</p>
+  <a class="rsvp-btn" href="https://advancements.scouting.org/calendar/event/6976836" target="_self">RSVP Now</a>
+  <span class="rsvp-url">https://advancements.scouting.org/calendar/event/6976836</span>
+</section>
+
+<footer>
+  Troop 0146 &nbsp;·&nbsp; Capitol Area Council BSA<br>
+  Brushy Creek Lake Park · Cedar Park, TX &nbsp;·&nbsp; June 19, 2026
+</footer>
+
+<script>
+const canvas=document.getElementById('stars-canvas');
+const ctx=canvas.getContext('2d');
+let stars=[];
+function resize(){
+  canvas.width=window.innerWidth;
+  canvas.height=Math.max(document.body.scrollHeight,window.innerHeight);
+  stars=[];
+  const n=Math.floor((canvas.width*canvas.height)/2800);
+  for(let i=0;i<n;i++)stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.4+.2,a:Math.random(),sp:Math.random()*.005+.002,ph:Math.random()*Math.PI*2});
+}
+let f=0;
+(function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  stars.forEach(s=>{
+    const a=s.a*(.5+.5*Math.sin(f*s.sp+s.ph));
+    ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle='rgba(220,230,255,'+a+')';ctx.fill();
+  });
+  f++;requestAnimationFrame(draw);
+})();
+window.addEventListener('resize',resize);
+setTimeout(resize,500);
+resize();
+const revs=document.querySelectorAll('.reveal');
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:.08});
+revs.forEach(r=>obs.observe(r));
+</script>
+
+<div id="claude-agent-glow-border" style="position: fixed; inset: 0px; pointer-events: none; z-index: 2147483646; opacity: 1; transition: opacity 0.3s ease-in-out;"><div id="claude-agent-glow-border-inner" style="position: absolute; inset: 0px; will-change: opacity; box-shadow: rgba(217, 119, 87, 0.7) 0px 0px 15px inset, rgba(217, 119, 87, 0.5) 0px 0px 25px inset, rgba(217, 119, 87, 0.2) 0px 0px 35px inset;"></div></div><div id="claude-agent-stop-container" style="position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); justify-content: center; align-items: center; pointer-events: none; z-index: 2147483647;"><button id="claude-agent-stop-button" style="position: relative; transform: translateY(0px); padding: 12px 16px; background: rgb(250, 249, 245); color: rgb(20, 20, 19); border: 0.5px solid rgba(31, 30, 29, 0.4); border-radius: 12px; font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; box-shadow: rgba(217, 119, 87, 0.24) 0px 40px 80px, rgba(217, 119, 87, 0.24) 0px 4px 14px; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity: 1; user-select: none; pointer-events: auto; white-space: nowrap; margin: 0px auto;">
+      <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor" style="margin-right: 12px; vertical-align: middle;">
+        <path d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm40-112v56a12,12,0,0,1-12,12H100a12,12,0,0,1-12-12V100a12,12,0,0,1,12-12h56A12,12,0,0,1,168,100Z"></path>
+      </svg>
+      <span style="vertical-align: middle;">Stop Claude</span>
+    </button></div><div id="claude-phantom-cursor" aria-hidden="true" style="position: fixed; top: 0px; left: 0px; pointer-events: none; z-index: 2147483646; transform: translate3d(600px, 400px, 0px); transition: transform 180ms cubic-bezier(0.2, 0, 0, 1); will-change: transform;"><svg id="claude-phantom-cursor-plain" width="20" height="26" viewBox="0 0 20 26" style="position: absolute; top: 0px; left: 0px; overflow: visible;"><path d="M0 0 L0 18 L4.5 14 L7.5 21.5 L11 20 L8 13 L14 13 Z" stroke="white" stroke-width="3" stroke-linejoin="round" fill="white"></path><path d="M0 0 L0 18 L4.5 14 L7.5 21.5 L11 20 L8 13 L14 13 Z" fill="#111"></path></svg><svg id="claude-phantom-cursor-styled" width="20" height="26" viewBox="0 0 20 26" style="position: absolute; top: 0px; left: 0px; overflow: visible; filter: drop-shadow(rgba(217, 119, 87, 0.9) 0px 0px 4px) drop-shadow(rgba(217, 119, 87, 0.45) 0px 0px 10px);"><path d="M0 0 L0 18 L4.5 14 L7.5 21.5 L11 20 L8 13 L14 13 Z" stroke="#D97757" stroke-width="3" stroke-linejoin="round" fill="#D97757"></path><path d="M0 0 L0 18 L4.5 14 L7.5 21.5 L11 20 L8 13 L14 13 Z" fill="#FAF9F5"></path></svg></div></body></html>
